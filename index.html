@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internship Board</title>
+  <meta name="description" content="Search and filter internships by domain.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#results">Skip to internships</a>
+
+  <header class="site-header">
+    <h1>Internship Board</h1>
+    <p>Find a role that fits. Search by title, company or skill, then narrow by domain.</p>
+  </header>
+
+  <main>
+    <section aria-labelledby="filter-title" class="filters">
+      <h2 id="filter-title" class="sr-only">Search and filter</h2>
+      <form id="filter-form" role="search" novalidate>
+        <div class="field">
+          <label for="q">Search internships</label>
+          <input id="q" name="q" type="search" placeholder="e.g. Python, Lumen Labs" autocomplete="off">
+          <small id="q-hint">Press / anywhere to jump here.</small>
+        </div>
+        <div class="field">
+          <label for="mode">Work mode</label>
+          <select id="mode" name="mode">
+            <option value="">Any mode</option>
+            <option>Remote</option>
+            <option>Hybrid</option>
+            <option>On-site</option>
+          </select>
+        </div>
+        <fieldset class="field domains">
+          <legend>Domain</legend>
+          <div id="domain-buttons" class="chips"></div>
+        </fieldset>
+      </form>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <section id="results" tabindex="-1" aria-label="Internship results">
+      <ul id="list" class="grid" aria-label="Internships. Use arrow keys to move between cards."></ul>
+      <div id="empty" class="state" hidden>
+        <h2>No internships match</h2>
+        <p>Try a shorter search, another domain, or clear your filters.</p>
+        <button type="button" id="clear">Clear filters</button>
+      </div>
+      <div id="error" class="state error" role="alert" hidden>
+        <h2>We couldn't load internships</h2>
+        <p id="error-msg">Check your connection or run the page from a local server, then try again.</p>
+        <button type="button" id="retry">Try again</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><p>Fictional listings for practice.</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>
