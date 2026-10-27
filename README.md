@@ -1,36 +1,66 @@
 # Internship Board
 
-A responsive, accessible internship board built with semantic HTML, CSS and vanilla JavaScript.
+A small full-stack app: a vanilla-JS frontend and a Node.js + SQLite backend, integrated safely.
+**Zero dependencies. No `npm install` needed.**
 
-**Live preview:** _add your deployed URL here_
+## Run it
 
-## Features
-- Reusable card template rendered from `data/internships.json`
-- Search (title, company, location, skills) + work-mode select + domain filter chips
-- Empty state (with "Clear filters") and error state (with "Try again")
-- Keyboard support: skip link, `/` focuses search, arrow keys / Home / End move between cards, visible focus
-- Labelled form controls, `aria-live` result count, `aria-pressed` filter buttons
-- Responsive 1 → 2 → 3 column grid, dark mode, reduced-motion support
+You need **Node.js 22.13 or newer** (check with `node -v`). Then, in a terminal:
 
-## Run locally
-`fetch()` does not work from `file://`, so use a local server:
 ```bash
-python3 -m http.server 8000
-# open http://localhost:8000
+cd internship-board
+npm start
 ```
 
-## Test the states
-- **Empty:** search for `zzzz`
-- **Error:** rename `data/internships.json` temporarily and reload
-- **Keyboard:** Tab to the first card, then use arrow keys
+Open **http://localhost:3000**. Stop with `Ctrl+C`.
 
-## Screenshots
-Add to `screenshots/` and link here:
-![Desktop](screenshots/desktop.png)
-![Mobile](screenshots/mobile.png)
-![Empty state](screenshots/empty.png)
+| Command | What it does |
+|---|---|
+| `npm start` | Run the app on http://localhost:3000 |
+| `npm test` | Run all 87 automated tests |
+| `npm run report` | Run the tests and write `TEST_REPORT.md` |
+| `npm run demo:failures` | Run with failure simulation so you can see error/retry/slow states |
 
-## Structure
+Options: `PORT=4000 npm start` (macOS/Linux) or `$env:PORT=4000; npm start` (Windows PowerShell).
+
+### See the loading and failure states
+Start with `npm run demo:failures`, then open:
+
+- http://localhost:3000/?simulate=slow  (skeleton loading for about 2.5 s)
+- http://localhost:3000/?simulate=error  (failure panel + **Try again** button)
+- http://localhost:3000/?simulate=flaky  (fails twice, then succeeds: shows automatic retry)
+
+The `simulate` switch is ignored unless the server was started with `--chaos`.
+
+## What is where
+
 ```
-index.html  styles.css  app.js  data/internships.json  README.md
+src/server.js      starts the server (reads PORT, HOST, DB_FILE)
+src/app.js         routing, rate limits, body limits, static files, error handling
+src/security.js    secure headers + rate limiter
+src/validate.js    SERVER-side validation
+src/db.js          SQLite schema, seed, parameterized queries
+public/            index.html, app.js (UI states + API client), validation.js (CLIENT-side), styles.css
+data/internships.json   seed records (12 listings)
+tests/             validation, API, security and frontend tests
+TEST_REPORT.md     latest test results + manual browser checklist
+SECURITY_CHECKLIST.md   short security checklist with evidence
 ```
+
+## API
+
+| Method & path | Notes |
+|---|---|
+| `GET /api/internships?q=&type=&location=&page=&pageSize=` | `type`: `remote`, `hybrid`, `onsite`. Returns `{ data: [...], meta: { page, pageSize, total, totalPages } }` |
+| `GET /api/internships/:id` | One listing, or 404 |
+| `POST /api/applications` | JSON body: `internshipId, fullName, email, school?, coverNote, consent`. 201 on success |
+| `GET /api/health` | `{ "status": "ok" }` |
+
+Errors always look like `{ "error": { "code", "message", "fields?" } }`.
+Statuses used: 400 bad query/JSON, 404, 405, 409 duplicate, 413 too large, 414 URL too long,
+415 wrong content type, 422 validation failed, 429 rate limited (with `Retry-After`), 500 generic.
+
+## Notes on the supplied materials
+The brief, API contract and test-record JSON were not available to me when this was built, so the API
+contract above is my own, written to the requirements you listed. If your brief specifies different
+field names, change them in `data/internships.json`, `src/db.js` (`toApi`) and `public/app.js`.
